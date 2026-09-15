@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Administration - OB Tournoi Live</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f5f7fa;
+      color: #1f2937;
+    }
+
+    header {
+      background: linear-gradient(135deg, #63c5da, #8dd7e8);
+      color: white;
+      padding: 22px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 26px;
+    }
+
+    header p {
+      margin: 6px 0 0;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .back {
+      display: inline-block;
+      margin-bottom: 18px;
+      text-decoration: none;
+      color: #0ea5e9;
+      font-weight: bold;
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 18px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    }
+
+    .card h2 {
+      margin-top: 0;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-top: 14px;
+      margin-bottom: 6px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #cbd5e1;
+      border-radius: 9px;
+      font-size: 16px;
+      background: white;
+    }
+
+    button {
+      width: 100%;
+      border: none;
+      border-radius: 10px;
+      padding: 14px;
+      margin-top: 16px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .club-button {
+      background: #0ea5e9;
+      color: white;
+    }
+
+    .team-button {
+      background: #f59e0b;
+      color: white;
+    }
+
+    .section-button {
+      background: #334155;
+      color: white;
+    }
+
+    .categories {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .category {
+      background: #f1f5f9;
+      padding: 12px 5px;
+      text-align: center;
+      border-radius: 9px;
+      font-weight: bold;
+    }
+
+    .status {
+      text-align: center;
+      color: #64748b;
+      margin: 20px 0;
+      font-size: 14px;
+    }
+
+    @media (max-width: 600px) {
+      .categories {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>⚙️ Administration</h1>
+  <p>OB Tournoi Live</p>
+</header>
+
+<main class="container">
+
+  <a href="/" class="back">← Retour à l'accueil</a>
+
+  <div class="card">
+    <h2>🏉 Tournoi EDR</h2>
+    <p><strong>Olympique de Besançon</strong></p>
+    <p>Besançon • Mai 2027</p>
+
+    <div id="categories" class="categories">
+      <div>Chargement...</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🏠 Clubs</h2>
+
+    <label>Nom du club</label>
+    <input
+      id="clubName"
+      type="text"
+      placeholder="Ex. Olympique de Besançon"
+    >
+
+    <button class="club-button">
+      + Ajouter le club
+    </button>
+  </div>
+
+  <div class="card">
+    <h2>👥 Équipes</h2>
+
+    <label>Club</label>
+    <select id="clubSelect">
+      <option>Sélectionner un club</option>
+    </select>
+
+    <label>Nom de l'équipe</label>
+    <input
+      id="teamName"
+      type="text"
+      placeholder="Ex. BESANCON 1"
+    >
+
+    <label>Catégorie</label>
+    <select id="categorySelect">
+      <option value="">Sélectionner une catégorie</option>
+    </select>
+
+    <button class="team-button">
+      + Ajouter l'équipe
+    </button>
+  </div>
+
+  <div class="card">
+    <h2>Organisation sportive</h2>
+
+    <button class="section-button">🏟️ Terrains</button>
+    <button class="section-button">📋 Poules</button>
+    <button class="section-button">🏉 Matchs</button>
+  </div>
+
+  <div id="status" class="status">
+    Connexion aux données...
+  </div>
+
+</main>
+
+<script>
+
+async function chargerCategories() {
+
+  const zone = document.getElementById("categories");
+  const select = document.getElementById("categorySelect");
+  const status = document.getElementById("status");
+
+  try {
+
+    const response = await fetch("/api/categories");
+
+    if (!response.ok) {
+      throw new Error("Erreur API");
+    }
+
+    const categories = await response.json();
+
+    zone.innerHTML = "";
+
+    categories.forEach(categorie => {
+
+      const bloc = document.createElement("div");
+      bloc.className = "category";
+      bloc.textContent = categorie.name;
+      zone.appendChild(bloc);
+
+      const option = document.createElement("option");
+      option.value = categorie.id;
+      option.textContent = categorie.name;
+      select.appendChild(option);
+
+    });
+
+    status.textContent = "🟢 Administration connectée aux données";
+
+  } catch (error) {
+
+    console.error(error);
+
+    zone.innerHTML =
+      "<div>Impossible de charger les catégories.</div>";
+
+    status.textContent =
+      "🔴 Erreur de connexion aux données";
+
+  }
+
+}
+
+chargerCategories();
+
+</script>
+
+</body>
+</html>
