@@ -598,7 +598,90 @@ async function ajouterEquipe() {
   // ===============================
 // GESTION DES TERRAINS
 // ===============================
+async function modifierTerrain(id) {
 
+  try {
+    const response = await fetch("/api/fields");
+    const terrains = await response.json();
+
+    const terrain = terrains.find(t => t.id === id);
+
+    if (!terrain) {
+      alert("Terrain introuvable.");
+      return;
+    }
+
+    const nouveauNom = prompt(
+      "Nom du terrain :",
+      terrain.name
+    );
+
+    if (!nouveauNom || !nouveauNom.trim()) return;
+
+    const responseModification = await fetch("/api/fields", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id: terrain.id,
+        name: nouveauNom.trim()
+      })
+    });
+
+    const data = await responseModification.json();
+
+    if (!responseModification.ok) {
+      console.error(data);
+      alert("Impossible de modifier le terrain.");
+      return;
+    }
+
+    await chargerTerrains();
+
+    alert("Terrain modifié avec succès.");
+
+  } catch (error) {
+    console.error(error);
+    alert("Erreur lors de la modification du terrain.");
+  }
+}
+async function supprimerTerrain(id, nom) {
+
+  const confirmation = confirm(
+    `Supprimer le terrain "${nom}" ?`
+  );
+
+  if (!confirmation) return;
+
+  try {
+
+    const response = await fetch("/api/fields", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ id })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error(data);
+      alert("Impossible de supprimer le terrain.");
+      return;
+    }
+
+    await chargerTerrains();
+
+    alert("Terrain supprimé avec succès.");
+
+  } catch (error) {
+    console.error(error);
+    alert("Erreur lors de la suppression du terrain.");
+  }
+}
+  
 async function chargerTerrains() {
 
   const zone = document.getElementById("fieldsList");
@@ -632,7 +715,35 @@ async function chargerTerrains() {
       ligne.style.borderRadius = "8px";
 
       ligne.innerHTML = `
-        <strong>🏟️ ${terrain.name}</strong>
+        ligne.innerHTML = `
+  <strong>🏟️ ${terrain.name}</strong>
+
+  <button
+    onclick="modifierTerrain(${terrain.id})"
+    style="
+      background: #0ea5e9;
+      color: white;
+      margin-top: 10px;
+      padding: 8px;
+      font-size: 14px;
+    "
+  >
+    ✏️ Modifier
+  </button>
+
+  <button
+    onclick="supprimerTerrain(${terrain.id}, '${terrain.name}')"
+    style="
+      background: #ef4444;
+      color: white;
+      margin-top: 10px;
+      padding: 8px;
+      font-size: 14px;
+    "
+  >
+    🗑️ Supprimer
+  </button>
+`;
       `;
 
       zone.appendChild(ligne);
