@@ -192,6 +192,10 @@
     <button class="team-button">
       + Ajouter l'équipe
     </button>
+
+    <div id="teamsList" style="margin-top: 20px;">
+  <p>Chargement des équipes...</p>
+</div>
   </div>
 
   <div class="card">
@@ -338,7 +342,46 @@ async function ajouterClub() {
 // ===============================
 // GESTION DES ÉQUIPES
 // ===============================
+async function chargerEquipes() {
+  const zone = document.getElementById("teamsList");
 
+  if (!zone) return;
+
+  try {
+    const response = await fetch("/api/teams");
+
+    if (!response.ok) {
+      throw new Error("Impossible de charger les équipes");
+    }
+
+    const equipes = await response.json();
+
+    if (equipes.length === 0) {
+      zone.innerHTML = "<p>Aucune équipe enregistrée.</p>";
+      return;
+    }
+
+    zone.innerHTML = "<h3>Équipes enregistrées</h3>";
+
+    equipes.forEach(equipe => {
+      const ligne = document.createElement("div");
+
+      ligne.style.padding = "10px";
+      ligne.style.marginBottom = "8px";
+      ligne.style.background = "#f1f5f9";
+      ligne.style.borderRadius = "8px";
+
+      ligne.textContent = equipe.name;
+
+      zone.appendChild(ligne);
+    });
+
+  } catch (error) {
+    console.error(error);
+    zone.innerHTML = "<p>Impossible de charger les équipes.</p>";
+  }
+}
+  
 async function ajouterEquipe() {
 
   const clubSelect = document.getElementById("clubSelect");
@@ -389,7 +432,8 @@ async function ajouterEquipe() {
 
     teamName.value = "";
     categorySelect.value = "";
-
+await chargerEquipes();
+    
     alert("Équipe ajoutée avec succès.");
 
   } catch (error) {
@@ -418,6 +462,7 @@ chargerClubs();
   
 chargerCategories();
 
+  chargerEquipes();
 </script>
 
 </body>
