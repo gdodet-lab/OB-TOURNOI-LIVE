@@ -53,9 +53,9 @@ export default async function handler(req, res) {
             "Content-Type": "application/json",
             Prefer: "return=representation"
           },
-          body: JSON.stringify({
-            event_id: 1,
-            name: name.trim()
+         body: JSON.stringify({
+  name: name.trim()
+})
           })
         }
       );
