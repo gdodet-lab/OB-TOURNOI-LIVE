@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     // LISTER LES TERRAINS
     if (req.method === "GET") {
       const response = await fetch(
-        `${supabaseUrl}/rest/v1/fields?select=id,event_id,name,display_order&order=display_order.asc`,
+        `${supabaseUrl}/rest/v1/pitches?select=id,event_id,name,display_order&order=display_order.asc`,
         {
           headers: {
             apikey: supabaseKey,
@@ -44,7 +44,7 @@ export default async function handler(req, res) {
       }
 
       const response = await fetch(
-        `${supabaseUrl}/rest/v1/fields`,
+        `${supabaseUrl}/rest/v1/pitches`,
         {
           method: "POST",
           headers: {
@@ -85,7 +85,7 @@ if (req.method === "PATCH") {
   }
 
   const response = await fetch(
-    `${supabaseUrl}/rest/v1/fields?id=eq.${Number(id)}`,
+    `${supabaseUrl}/rest/v1/pitches?id=eq.${Number(id)}`,
     {
       method: "PATCH",
       headers: {
@@ -122,7 +122,7 @@ if (req.method === "DELETE") {
   }
 
   const response = await fetch(
-    `${supabaseUrl}/rest/v1/fields?id=eq.${Number(id)}`,
+    `${supabaseUrl}/rest/v1/pitches?id=eq.${Number(id)}`,
     {
       method: "DELETE",
       headers: {
