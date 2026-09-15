@@ -371,7 +371,13 @@ async function chargerEquipes() {
       ligne.style.background = "#f1f5f9";
       ligne.style.borderRadius = "8px";
 
-      ligne.textContent = equipe.name;
+      ligne.innerHTML = `
+  <strong>${equipe.name}</strong><br>
+  <span style="color: #64748b; font-size: 14px;">
+    🏠 ${equipe.clubs?.name || "Club inconnu"} •
+    🏉 ${equipe.categories?.name || "Catégorie inconnue"}
+  </span>
+`;
 
       zone.appendChild(ligne);
     });
