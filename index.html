@@ -3,15 +3,227 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>OB Tournoi Live</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f5f7fa;
+      color: #1f2937;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #63c5da, #8dd7e8);
+      color: white;
+      padding: 28px 20px;
+      text-align: center;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .header p {
+      margin: 7px 0 0;
+      font-size: 15px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .tournament {
+      background: white;
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 20px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    }
+
+    .tournament h2 {
+      margin: 0 0 5px;
+      font-size: 20px;
+    }
+
+    .tournament p {
+      margin: 4px 0;
+      color: #64748b;
+    }
+
+    h3 {
+      margin-top: 25px;
+    }
+
+    .categories {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .category {
+      background: white;
+      border-radius: 14px;
+      padding: 22px 10px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+      border: 2px solid transparent;
+    }
+
+    .category:hover {
+      border-color: #63c5da;
+    }
+
+    .menu {
+      display: grid;
+      gap: 12px;
+      margin-top: 25px;
+    }
+
+    .menu button {
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 17px;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .matches {
+      background: #f59e0b;
+      color: white;
+    }
+
+    .standings {
+      background: #0ea5e9;
+      color: white;
+    }
+
+    .admin {
+      background: #334155;
+      color: white;
+    }
+
+    .status {
+      margin-top: 25px;
+      text-align: center;
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    @media (min-width: 700px) {
+      .categories {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+  </style>
 </head>
 
 <body>
-  <h1>🏉 OB Tournoi Live</h1>
-  <h2>Olympique de Besançon</h2>
 
-  <p>Application de gestion des tournois de rugby.</p>
+  <header class="header">
+    <h1>🏉 OB Tournoi Live</h1>
+    <p>Olympique de Besançon</p>
+  </header>
 
-  <p>✅ L'application fonctionne !</p>
+  <main class="container">
+
+    <section class="tournament">
+      <h2>Tournoi École de Rugby</h2>
+      <p>📍 Besançon</p>
+      <p>📅 Mai 2027</p>
+    </section>
+
+    <h3>Catégories</h3>
+
+    <div id="categories" class="categories">
+      <div>Chargement...</div>
+    </div>
+
+    <div class="menu">
+
+      <button class="matches">
+        🏉 Matchs
+      </button>
+
+      <button class="standings">
+        🏆 Classements
+      </button>
+
+      <button class="admin">
+        ⚙️ Administration
+      </button>
+
+    </div>
+
+    <div id="status" class="status">
+      Connexion au tournoi...
+    </div>
+
+  </main>
+
+  <script>
+
+    async function chargerCategories() {
+
+      const zone = document.getElementById("categories");
+      const status = document.getElementById("status");
+
+      try {
+
+        const response = await fetch("/api/categories");
+
+        if (!response.ok) {
+          throw new Error("Erreur API");
+        }
+
+        const categories = await response.json();
+
+        zone.innerHTML = "";
+
+        categories.forEach(categorie => {
+
+          const bloc = document.createElement("div");
+
+          bloc.className = "category";
+          bloc.textContent = categorie.name;
+
+          zone.appendChild(bloc);
+
+        });
+
+        status.textContent =
+          "🟢 Données du tournoi connectées";
+
+      } catch (error) {
+
+        console.error(error);
+
+        zone.innerHTML =
+          "<div>Impossible de charger les catégories.</div>";
+
+        status.textContent =
+          "🔴 Erreur de connexion aux données";
+
+      }
+
+    }
+
+    chargerCategories();
+
+  </script>
+
 </body>
 </html>
