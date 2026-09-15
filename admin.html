@@ -257,7 +257,97 @@ async function chargerCategories() {
   }
 
 }
+// ===============================
+// GESTION DES CLUBS
+// ===============================
 
+async function chargerClubs() {
+  try {
+    const response = await fetch("/api/clubs");
+
+    if (!response.ok) {
+      throw new Error("Impossible de charger les clubs");
+    }
+
+    const clubs = await response.json();
+
+    const selectClub = document.getElementById("clubSelect");
+
+    if (!selectClub) return;
+
+    selectClub.innerHTML =
+      '<option value="">Sélectionner un club</option>';
+
+    clubs.forEach(club => {
+      const option = document.createElement("option");
+      option.value = club.id;
+      option.textContent = club.name;
+      selectClub.appendChild(option);
+    });
+
+  } catch (error) {
+    console.error("Erreur chargement clubs :", error);
+  }
+}
+
+
+async function ajouterClub() {
+
+  const input = document.getElementById("clubName");
+
+  if (!input) return;
+
+  const name = input.value.trim();
+
+  if (!name) {
+    alert("Merci de saisir le nom du club.");
+    return;
+  }
+
+  try {
+
+    const response = await fetch("/api/clubs", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ name })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error(data);
+      alert("Impossible d'ajouter le club.");
+      return;
+    }
+
+    input.value = "";
+
+    alert("Club ajouté avec succès.");
+
+    await chargerClubs();
+
+  } catch (error) {
+
+    console.error(error);
+    alert("Erreur lors de l'ajout du club.");
+
+  }
+}
+
+
+// Activation du bouton Ajouter le club
+const boutonClub = document.querySelector(".club-button");
+
+if (boutonClub) {
+  boutonClub.addEventListener("click", ajouterClub);
+}
+
+
+// Chargement initial des clubs
+chargerClubs();
+  
 chargerCategories();
 
 </script>
