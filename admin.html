@@ -201,7 +201,25 @@
   <div class="card">
     <h2>Organisation sportive</h2>
 
-    <button class="section-button">🏟️ Terrains</button>
+    <h3>🏟️ Terrains</h3>
+
+<label>Nom du terrain</label>
+<input
+  id="fieldName"
+  type="text"
+  placeholder="Ex. Terrain 1"
+>
+
+<button
+  id="addFieldButton"
+  class="section-button"
+>
+  + Ajouter le terrain
+</button>
+
+<div id="fieldsList" style="margin-top: 20px;">
+  <p>Chargement des terrains...</p>
+</div>
     <button class="section-button">📋 Poules</button>
     <button class="section-button">🏉 Matchs</button>
   </div>
@@ -577,6 +595,100 @@ async function ajouterEquipe() {
     alert("Erreur lors de l'ajout de l'équipe.");
   }
 }
+  // ===============================
+// GESTION DES TERRAINS
+// ===============================
+
+async function chargerTerrains() {
+
+  const zone = document.getElementById("fieldsList");
+
+  if (!zone) return;
+
+  try {
+
+    const response = await fetch("/api/fields");
+
+    if (!response.ok) {
+      throw new Error("Impossible de charger les terrains");
+    }
+
+    const terrains = await response.json();
+
+    if (terrains.length === 0) {
+      zone.innerHTML = "<p>Aucun terrain enregistré.</p>";
+      return;
+    }
+
+    zone.innerHTML = "<h3>Terrains enregistrés</h3>";
+
+    terrains.forEach(terrain => {
+
+      const ligne = document.createElement("div");
+
+      ligne.style.padding = "10px";
+      ligne.style.marginBottom = "8px";
+      ligne.style.background = "#f1f5f9";
+      ligne.style.borderRadius = "8px";
+
+      ligne.innerHTML = `
+        <strong>🏟️ ${terrain.name}</strong>
+      `;
+
+      zone.appendChild(ligne);
+    });
+
+  } catch (error) {
+    console.error(error);
+    zone.innerHTML = "<p>Impossible de charger les terrains.</p>";
+  }
+}
+
+
+async function ajouterTerrain() {
+
+  const input = document.getElementById("fieldName");
+
+  if (!input) return;
+
+  const name = input.value.trim();
+
+  if (!name) {
+    alert("Merci de saisir le nom du terrain.");
+    return;
+  }
+
+  try {
+
+    const response = await fetch("/api/fields", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        name
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error(data);
+      alert("Impossible d'ajouter le terrain.");
+      return;
+    }
+
+    input.value = "";
+
+    await chargerTerrains();
+
+    alert("Terrain ajouté avec succès.");
+
+  } catch (error) {
+    console.error(error);
+    alert("Erreur lors de l'ajout du terrain.");
+  }
+}
 // Activation du bouton Ajouter le club
 const boutonClub = document.querySelector(".club-button");
 
@@ -590,12 +702,20 @@ if (boutonEquipe) {
   boutonEquipe.addEventListener("click", ajouterEquipe);
 }
 
+  // Activation du bouton Ajouter le terrain
+const boutonTerrain = document.getElementById("addFieldButton");
+
+if (boutonTerrain) {
+  boutonTerrain.addEventListener("click", ajouterTerrain);
+}
 // Chargement initial des clubs
 chargerClubs();
   
 chargerCategories();
 
   chargerEquipes();
+
+  chargerTerrains();
 </script>
 
 </body>
