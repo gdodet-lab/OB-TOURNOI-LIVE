@@ -335,7 +335,70 @@ async function ajouterClub() {
 
   }
 }
+// ===============================
+// GESTION DES ÉQUIPES
+// ===============================
 
+async function ajouterEquipe() {
+
+  const clubSelect = document.getElementById("clubSelect");
+  const teamName = document.getElementById("teamName");
+  const categorySelect = document.getElementById("categorySelect");
+
+  const club_id = clubSelect.value;
+  const name = teamName.value.trim();
+  const category_id = categorySelect.value;
+
+  if (!club_id) {
+    alert("Merci de sélectionner un club.");
+    return;
+  }
+
+  if (!name) {
+    alert("Merci de saisir le nom de l'équipe.");
+    return;
+  }
+
+  if (!category_id) {
+    alert("Merci de sélectionner une catégorie.");
+    return;
+  }
+
+  try {
+
+    const response = await fetch("/api/teams", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        club_id,
+        category_id,
+        name,
+        team_number: 1
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error(data);
+      alert("Impossible d'ajouter l'équipe.");
+      return;
+    }
+
+    teamName.value = "";
+    categorySelect.value = "";
+
+    alert("Équipe ajoutée avec succès.");
+
+  } catch (error) {
+
+    console.error(error);
+    alert("Erreur lors de l'ajout de l'équipe.");
+
+  }
+}
 
 // Activation du bouton Ajouter le club
 const boutonClub = document.querySelector(".club-button");
@@ -343,7 +406,12 @@ const boutonClub = document.querySelector(".club-button");
 if (boutonClub) {
   boutonClub.addEventListener("click", ajouterClub);
 }
+// Activation du bouton Ajouter l'équipe
+const boutonEquipe = document.querySelector(".team-button");
 
+if (boutonEquipe) {
+  boutonEquipe.addEventListener("click", ajouterEquipe);
+}
 
 // Chargement initial des clubs
 chargerClubs();
