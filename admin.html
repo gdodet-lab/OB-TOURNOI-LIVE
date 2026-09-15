@@ -342,6 +342,67 @@ async function ajouterClub() {
 // ===============================
 // GESTION DES ÉQUIPES
 // ===============================
+// ===============================
+// GESTION DES ÉQUIPES
+// ===============================
+
+async function modifierEquipe(id) {
+
+  try {
+    const response = await fetch("/api/teams");
+
+    if (!response.ok) {
+      alert("Impossible de charger l'équipe.");
+      return;
+    }
+
+    const equipes = await response.json();
+    const equipe = equipes.find(e => e.id === id);
+
+    if (!equipe) {
+      alert("Équipe introuvable.");
+      return;
+    }
+
+    const nouveauNom = prompt(
+      "Nom de l'équipe :",
+      equipe.name
+    );
+
+    if (!nouveauNom || !nouveauNom.trim()) return;
+
+    const responseModification = await fetch("/api/teams", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id: equipe.id,
+        name: nouveauNom.trim(),
+        club_id: equipe.club_id,
+        category_id: equipe.category_id
+      })
+    });
+
+    const data = await responseModification.json();
+
+    if (!responseModification.ok) {
+      console.error(data);
+      alert("Impossible de modifier l'équipe.");
+      return;
+    }
+
+    await chargerEquipes();
+
+    alert("Équipe modifiée avec succès.");
+
+  } catch (error) {
+    console.error(error);
+    alert("Erreur lors de la modification de l'équipe.");
+  }
+}
+
+
 async function supprimerEquipe(id, nom) {
 
   const confirmation = confirm(
@@ -373,18 +434,20 @@ async function supprimerEquipe(id, nom) {
     alert("Équipe supprimée avec succès.");
 
   } catch (error) {
-
     console.error(error);
     alert("Erreur lors de la suppression de l'équipe.");
-
   }
 }
-  async function chargerEquipes() {
+
+
+async function chargerEquipes() {
+
   const zone = document.getElementById("teamsList");
 
   if (!zone) return;
 
   try {
+
     const response = await fetch("/api/teams");
 
     if (!response.ok) {
@@ -401,6 +464,7 @@ async function supprimerEquipe(id, nom) {
     zone.innerHTML = "<h3>Équipes enregistrées</h3>";
 
     equipes.forEach(equipe => {
+
       const ligne = document.createElement("div");
 
       ligne.style.padding = "10px";
@@ -409,25 +473,39 @@ async function supprimerEquipe(id, nom) {
       ligne.style.borderRadius = "8px";
 
       ligne.innerHTML = `
-  <strong>${equipe.name}</strong><br>
-  <span style="color: #64748b; font-size: 14px;">
-    🏠 ${equipe.clubs?.name || "Club inconnu"} •
-    🏉 ${equipe.categories?.name || "Catégorie inconnue"}
-  </span>
+        <strong>${equipe.name}</strong><br>
 
-  <button
-    onclick="supprimerEquipe(${equipe.id}, '${equipe.name}')"
-    style="
-      background: #ef4444;
-      color: white;
-      margin-top: 10px;
-      padding: 8px;
-      font-size: 14px;
-    "
-  >
-    🗑️ Supprimer
-  </button>
-`;
+        <span style="color: #64748b; font-size: 14px;">
+          🏠 ${equipe.clubs?.name || "Club inconnu"} •
+          🏉 ${equipe.categories?.name || "Catégorie inconnue"}
+        </span>
+
+        <button
+          onclick="modifierEquipe(${equipe.id})"
+          style="
+            background: #0ea5e9;
+            color: white;
+            margin-top: 10px;
+            padding: 8px;
+            font-size: 14px;
+          "
+        >
+          ✏️ Modifier
+        </button>
+
+        <button
+          onclick="supprimerEquipe(${equipe.id}, '${equipe.name}')"
+          style="
+            background: #ef4444;
+            color: white;
+            margin-top: 10px;
+            padding: 8px;
+            font-size: 14px;
+          "
+        >
+          🗑️ Supprimer
+        </button>
+      `;
 
       zone.appendChild(ligne);
     });
@@ -437,7 +515,8 @@ async function supprimerEquipe(id, nom) {
     zone.innerHTML = "<p>Impossible de charger les équipes.</p>";
   }
 }
-  
+
+
 async function ajouterEquipe() {
 
   const clubSelect = document.getElementById("clubSelect");
@@ -488,18 +567,16 @@ async function ajouterEquipe() {
 
     teamName.value = "";
     categorySelect.value = "";
-await chargerEquipes();
-    
+
+    await chargerEquipes();
+
     alert("Équipe ajoutée avec succès.");
 
   } catch (error) {
-
     console.error(error);
     alert("Erreur lors de l'ajout de l'équipe.");
-
   }
 }
-
 // Activation du bouton Ajouter le club
 const boutonClub = document.querySelector(".club-button");
 
