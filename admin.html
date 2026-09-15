@@ -220,7 +220,41 @@
 <div id="fieldsList" style="margin-top: 20px;">
   <p>Chargement des terrains...</p>
 </div>
-    <button class="section-button">📋 Poules</button>
+    <h3>📋 Poules</h3>
+
+<label>Catégorie</label>
+<select id="poolCategorySelect">
+  <option value="">Sélectionner une catégorie</option>
+</select>
+
+<label>Terrain</label>
+<select id="poolPitchSelect">
+  <option value="">Sélectionner un terrain</option>
+</select>
+
+<label>Nom de la poule</label>
+<input
+  id="poolName"
+  type="text"
+  placeholder="Ex. Poule A"
+>
+
+<label>Phase</label>
+<select id="poolPhase">
+  <option value="morning">Matin</option>
+  <option value="afternoon">Après-midi</option>
+</select>
+
+<button
+  id="addPoolButton"
+  class="section-button"
+>
+  + Ajouter la poule
+</button>
+
+<div id="poolsList" style="margin-top: 20px;">
+  <p>Chargement des poules...</p>
+</div>
     <button class="section-button">🏉 Matchs</button>
   </div>
 
@@ -236,6 +270,7 @@ async function chargerCategories() {
 
   const zone = document.getElementById("categories");
   const select = document.getElementById("categorySelect");
+  const poolCategorySelect = document.getElementById("poolCategorySelect");
   const status = document.getElementById("status");
 
   try {
@@ -261,6 +296,12 @@ async function chargerCategories() {
       option.value = categorie.id;
       option.textContent = categorie.name;
       select.appendChild(option);
+      if (poolCategorySelect) {
+  const poolOption = document.createElement("option");
+  poolOption.value = categorie.id;
+  poolOption.textContent = categorie.name;
+  poolCategorySelect.appendChild(poolOption);
+}
 
     });
 
@@ -685,7 +726,8 @@ async function supprimerTerrain(id, nom) {
 async function chargerTerrains() {
 
   const zone = document.getElementById("fieldsList");
-
+const poolPitchSelect = document.getElementById("poolPitchSelect");
+  
   if (!zone) return;
 
   try {
@@ -697,6 +739,17 @@ async function chargerTerrains() {
     }
 
     const terrains = await response.json();
+    if (poolPitchSelect) {
+  poolPitchSelect.innerHTML =
+    '<option value="">Sélectionner un terrain</option>';
+
+  terrains.forEach(terrain => {
+    const option = document.createElement("option");
+    option.value = terrain.id;
+    option.textContent = terrain.name;
+    poolPitchSelect.appendChild(option);
+  });
+}
 
     if (terrains.length === 0) {
       zone.innerHTML = "<p>Aucun terrain enregistré.</p>";
@@ -752,7 +805,99 @@ async function chargerTerrains() {
   }
 }
 
+  async function ajouterPoule() {
+  const categorySelect = document.getElementById("poolCategorySelect");
+  const pitchSelect = document.getElementById("poolPitchSelect");
+  const nameInput = document.getElementById("poolName");
+  const phaseSelect = document.getElementById("poolPhase");
 
+  const category_id = categorySelect.value;
+  const pitch_id = pitchSelect.value;
+  const name = nameInput.value.trim();
+  const phase = phaseSelect.value;
+
+  if (!category_id || !pitch_id || !name) {
+    alert("Merci de renseigner la catégorie, le terrain et le nom de la poule.");
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/pools", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        category_id,
+        pitch_id,
+        name,
+        phase
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error(data);
+      alert("Impossible d'ajouter la poule.");
+      return;
+    }
+
+    nameInput.value = "";
+
+    await chargerPoules();
+
+    alert("Poule ajoutée avec succès.");
+
+  } catch (error) {
+    console.error(error);
+    alert("Erreur lors de l'ajout de la poule.");
+  }
+}
+async function chargerPoules() {
+  const zone = document.getElementById("poolsList");
+
+  if (!zone) return;
+
+  try {
+    const response = await fetch("/api/pools");
+
+    if (!response.ok) {
+      throw new Error("Impossible de charger les poules");
+    }
+
+    const poules = await response.json();
+
+    if (poules.length === 0) {
+      zone.innerHTML = "<p>Aucune poule enregistrée.</p>";
+      return;
+    }
+
+    zone.innerHTML = "<h3>Poules enregistrées</h3>";
+
+    poules.forEach(poule => {
+      const ligne = document.createElement("div");
+
+      ligne.style.padding = "10px";
+      ligne.style.marginBottom = "8px";
+      ligne.style.background = "#f1f5f9";
+      ligne.style.borderRadius = "8px";
+
+      ligne.innerHTML = `
+        <strong>📋 ${poule.name}</strong><br>
+        <span style="color: #64748b; font-size: 14px;">
+          ${poule.phase === "afternoon" ? "Après-midi" : "Matin"}
+        </span>
+      `;
+
+      zone.appendChild(ligne);
+    });
+
+  } catch (error) {
+    console.error(error);
+    zone.innerHTML = "<p>Impossible de charger les poules.</p>";
+  }
+}
 async function ajouterTerrain() {
 
   const input = document.getElementById("fieldName");
@@ -810,6 +955,12 @@ if (boutonEquipe) {
   boutonEquipe.addEventListener("click", ajouterEquipe);
 }
 
+  // Activation du bouton Ajouter la poule
+const boutonPoule = document.getElementById("addPoolButton");
+
+if (boutonPoule) {
+  boutonPoule.addEventListener("click", ajouterPoule);
+}
   // Activation du bouton Ajouter le terrain
 const boutonTerrain = document.getElementById("addFieldButton");
 
@@ -824,6 +975,7 @@ chargerCategories();
   chargerEquipes();
 
   chargerTerrains();
+  chargerPoules();
 </script>
 
 </body>
