@@ -342,7 +342,44 @@ async function ajouterClub() {
 // ===============================
 // GESTION DES ÉQUIPES
 // ===============================
-async function chargerEquipes() {
+async function supprimerEquipe(id, nom) {
+
+  const confirmation = confirm(
+    `Supprimer l'équipe "${nom}" ?`
+  );
+
+  if (!confirmation) return;
+
+  try {
+
+    const response = await fetch("/api/teams", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ id })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error(data);
+      alert("Impossible de supprimer l'équipe.");
+      return;
+    }
+
+    await chargerEquipes();
+
+    alert("Équipe supprimée avec succès.");
+
+  } catch (error) {
+
+    console.error(error);
+    alert("Erreur lors de la suppression de l'équipe.");
+
+  }
+}
+  async function chargerEquipes() {
   const zone = document.getElementById("teamsList");
 
   if (!zone) return;
@@ -377,6 +414,19 @@ async function chargerEquipes() {
     🏠 ${equipe.clubs?.name || "Club inconnu"} •
     🏉 ${equipe.categories?.name || "Catégorie inconnue"}
   </span>
+
+  <button
+    onclick="supprimerEquipe(${equipe.id}, '${equipe.name}')"
+    style="
+      background: #ef4444;
+      color: white;
+      margin-top: 10px;
+      padding: 8px;
+      font-size: 14px;
+    "
+  >
+    🗑️ Supprimer
+  </button>
 `;
 
       zone.appendChild(ligne);
