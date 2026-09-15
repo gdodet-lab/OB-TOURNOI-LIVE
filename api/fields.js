@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     // LISTER LES TERRAINS
     if (req.method === "GET") {
       const response = await fetch(
-        `${supabaseUrl}/rest/v1/pitches?select=id,event_id,name,display_order&order=display_order.asc`,
+        ``${supabaseUrl}/rest/v1/pitches?select=id,name,display_order&order=display_order.asc`,,
         {
           headers: {
             apikey: supabaseKey,
@@ -54,7 +54,6 @@ export default async function handler(req, res) {
             Prefer: "return=representation"
           },
           body: JSON.stringify({
-            event_id: 1,
             name: name.trim(),
             display_order: display_order
               ? Number(display_order)
