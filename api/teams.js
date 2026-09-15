@@ -79,6 +79,50 @@ export default async function handler(req, res) {
 
       return res.status(201).json(data);
     }
+    // MODIFIER UNE ÉQUIPE
+if (req.method === "PATCH") {
+  const {
+    id,
+    name,
+    club_id,
+    category_id
+  } = req.body || {};
+
+  if (!id || !name || !club_id || !category_id) {
+    return res.status(400).json({
+      error: "ID, nom, club et catégorie obligatoires"
+    });
+  }
+
+  const response = await fetch(
+    `${supabaseUrl}/rest/v1/teams?id=eq.${Number(id)}`,
+    {
+      method: "PATCH",
+      headers: {
+        apikey: supabaseKey,
+        Authorization: `Bearer ${supabaseKey}`,
+        "Content-Type": "application/json",
+        Prefer: "return=representation"
+      },
+      body: JSON.stringify({
+        name: name.trim(),
+        club_id: Number(club_id),
+        category_id: Number(category_id)
+      })
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    return res.status(response.status).json({
+      error: "Erreur Supabase",
+      details: data
+    });
+  }
+
+  return res.status(200).json(data);
+}
 // SUPPRIMER UNE ÉQUIPE
 if (req.method === "DELETE") {
   const { id } = req.body || {};
