@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     // LISTER LES ÉQUIPES
     if (req.method === "GET") {
       const response = await fetch(
-        `${supabaseUrl}/rest/v1/teams?select=id,event_id,category_id,club_id,name,team_number&order=name.asc`,
+        `${supabaseUrl}/rest/v1/teams?select=id,event_id,category_id,club_id,name,team_number,clubs(name),categories(name)&order=name.asc`,
         {
           headers: {
             apikey: supabaseKey,
