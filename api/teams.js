@@ -79,7 +79,41 @@ export default async function handler(req, res) {
 
       return res.status(201).json(data);
     }
+// SUPPRIMER UNE ÉQUIPE
+if (req.method === "DELETE") {
+  const { id } = req.body || {};
 
+  if (!id) {
+    return res.status(400).json({
+      error: "ID de l'équipe obligatoire"
+    });
+  }
+
+  const response = await fetch(
+    `${supabaseUrl}/rest/v1/teams?id=eq.${Number(id)}`,
+    {
+      method: "DELETE",
+      headers: {
+        apikey: supabaseKey,
+        Authorization: `Bearer ${supabaseKey}`
+      }
+    }
+  );
+
+  if (!response.ok) {
+    const data = await response.json();
+
+    return res.status(response.status).json({
+      error: "Erreur Supabase",
+      details: data
+    });
+  }
+
+  return res.status(200).json({
+    success: true
+  });
+}
+    
     return res.status(405).json({
       error: "Méthode non autorisée"
     });
