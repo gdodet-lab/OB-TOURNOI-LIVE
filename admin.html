@@ -951,6 +951,8 @@ async function chargerPoules() {
     poolTeamPoolSelect.appendChild(option);
   });
 }
+    const responseAffectations = await fetch("/api/pool-teams");
+const affectations = await responseAffectations.json();
     if (poules.length === 0) {
       zone.innerHTML = "<p>Aucune poule enregistrée.</p>";
       return;
@@ -960,18 +962,32 @@ async function chargerPoules() {
 
     poules.forEach(poule => {
       const ligne = document.createElement("div");
+      const equipesDeLaPoule = affectations.filter(
+  affectation => affectation.pool_id === poule.id
+);
 
       ligne.style.padding = "10px";
       ligne.style.marginBottom = "8px";
       ligne.style.background = "#f1f5f9";
       ligne.style.borderRadius = "8px";
 
-      ligne.innerHTML = `
-        <strong>📋 ${poule.name}</strong><br>
-        <span style="color: #64748b; font-size: 14px;">
-          ${poule.phase === "afternoon" ? "Après-midi" : "Matin"}
-        </span>
-      `;
+    ligne.innerHTML = `
+  <strong>📋 ${poule.name}</strong><br>
+
+  <span style="color: #64748b; font-size: 14px;">
+    ${poule.phase === "afternoon" ? "Après-midi" : "Matin"}
+  </span>
+
+  <div style="margin-top: 8px;">
+    ${
+      equipesDeLaPoule.length > 0
+        ? equipesDeLaPoule
+            .map(affectation => `👥 ${affectation.teams.name}`)
+            .join("<br>")
+        : '<span style="color: #94a3b8;">Aucune équipe</span>'
+    }
+  </div>
+`;
 
       zone.appendChild(ligne);
     });
