@@ -895,6 +895,39 @@ const poolPitchSelect = document.getElementById("poolPitchSelect");
     alert("Merci de sélectionner une poule et une équipe.");
     return;
   }
+    async function retirerEquipePoule(id) {
+  if (!confirm("Retirer cette équipe de la poule ?")) {
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/pool-teams", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error(data);
+      alert("Impossible de retirer l'équipe de la poule.");
+      return;
+    }
+
+    await chargerPoules();
+
+    alert("Équipe retirée de la poule avec succès.");
+
+  } catch (error) {
+    console.error(error);
+    alert("Erreur lors du retrait de l'équipe.");
+  }
+}
 
   try {
     const response = await fetch("/api/pool-teams", {
@@ -982,7 +1015,15 @@ const affectations = await responseAffectations.json();
     ${
       equipesDeLaPoule.length > 0
         ? equipesDeLaPoule
-            .map(affectation => `👥 ${affectation.teams.name}`)
+            .map(affectation => `
+  👥 ${affectation.teams.name}
+  <button
+    onclick="retirerEquipePoule(${affectation.id})"
+    style="margin-left: 10px; padding: 4px 8px;"
+  >
+    🗑️ Retirer
+  </button>
+`)
             .join("<br>")
         : '<span style="color: #94a3b8;">Aucune équipe</span>'
     }
