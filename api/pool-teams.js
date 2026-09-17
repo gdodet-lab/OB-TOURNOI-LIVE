@@ -70,7 +70,39 @@ if (req.method === "POST") {
 
   return res.status(201).json(data);
 }
-    
+    // RETIRER UNE ÉQUIPE D'UNE POULE
+if (req.method === "DELETE") {
+  const { id } = req.body || {};
+
+  if (!id) {
+    return res.status(400).json({
+      error: "ID de l'affectation obligatoire"
+    });
+  }
+
+  const response = await fetch(
+    `${supabaseUrl}/rest/v1/pool_teams?id=eq.${Number(id)}`,
+    {
+      method: "DELETE",
+      headers: {
+        apikey: supabaseKey,
+        Authorization: `Bearer ${supabaseKey}`,
+        Prefer: "return=representation"
+      }
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    return res.status(response.status).json({
+      error: "Erreur Supabase",
+      details: data
+    });
+  }
+
+  return res.status(200).json(data);
+}
     return res.status(405).json({
       error: "Méthode non autorisée"
     });
