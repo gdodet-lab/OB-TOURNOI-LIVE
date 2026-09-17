@@ -958,7 +958,41 @@ const poolPitchSelect = document.getElementById("poolPitchSelect");
     alert("Erreur lors de l'affectation de l'équipe.");
   }
 }
-async function chargerPoules() {
+  async function retirerEquipePoule(id) {
+  if (!confirm("Retirer cette équipe de la poule ?")) {
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/pool-teams", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error(data);
+      alert("Impossible de retirer l'équipe de la poule.");
+      return;
+    }
+
+    await chargerPoules();
+
+    alert("Équipe retirée de la poule avec succès.");
+
+  } catch (error) {
+    console.error(error);
+    alert("Erreur lors du retrait de l'équipe.");
+  }
+}
+  async function chargerPoules() {
+
   const zone = document.getElementById("poolsList");
   const poolTeamPoolSelect = document.getElementById("poolTeamPoolSelect");
 
