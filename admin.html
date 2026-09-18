@@ -1135,17 +1135,11 @@ const affectations = await responseAffectations.json();
   affectation => affectation.pool_id === poule.id
 );
 
-      ligne.style.padding = "10px";
-      ligne.style.marginBottom = "8px";
-      ligne.style.background = "#f1f5f9";
-      ligne.style.borderRadius = "8px";
+     ligne.style.padding = "10px";
+ligne.style.marginBottom = "8px";
+ligne.style.background = "#f1f5f9";
+ligne.style.borderRadius = "8px";
 
-    ligne.innerHTML = `
-  <strong>📋 ${poule.name}</strong><br>
-
-  <span style="color: #64748b; font-size: 14px;">
-    ${poule.phase === "afternoon" ? "Après-midi" : "Matin"}
-  </span>
 ligne.innerHTML = `
   <strong>📋 ${poule.name}</strong><br>
 
@@ -1172,28 +1166,23 @@ ligne.innerHTML = `
   <div style="margin-top: 8px;">
     ${
       equipesDeLaPoule.length > 0
-  <div style="margin-top: 8px;">
-    ${
-      equipesDeLaPoule.length > 0
         ? equipesDeLaPoule
             .map(affectation => `
-  👥 ${affectation.teams.name}
-  <button
-    onclick="retirerEquipePoule(${affectation.id})"
-    style="margin-left: 10px; padding: 4px 8px;"
-  >
-    🗑️ Retirer
-  </button>
-`)
+              👥 ${affectation.teams.name}
+              <button
+                onclick="retirerEquipePoule(${affectation.id})"
+                style="margin-left: 10px; padding: 4px 8px;"
+              >
+                🗑️ Retirer
+              </button>
+            `)
             .join("<br>")
         : '<span style="color: #94a3b8;">Aucune équipe</span>'
     }
   </div>
 `;
 
-      zone.appendChild(ligne);
-    });
-
+zone.appendChild(ligne);
   } catch (error) {
     console.error(error);
     zone.innerHTML = "<p>Impossible de charger les poules.</p>";
