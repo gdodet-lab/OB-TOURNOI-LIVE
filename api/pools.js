@@ -74,7 +74,80 @@ if (req.method === "POST") {
 
   return res.status(201).json(data);
 }
-    
+    // MODIFIER UNE POULE
+if (req.method === "PATCH") {
+  const { id, category_id, pitch_id, name, phase, start_time } = req.body || {};
+
+  if (!id || !category_id || !pitch_id || !name || !name.trim()) {
+    return res.status(400).json({
+      error: "ID, catégorie, terrain et nom de la poule obligatoires"
+    });
+  }
+
+  const response = await fetch(
+    `${supabaseUrl}/rest/v1/pools?id=eq.${Number(id)}`,
+    {
+      method: "PATCH",
+      headers: {
+        apikey: supabaseKey,
+        Authorization: `Bearer ${supabaseKey}`,
+        "Content-Type": "application/json",
+        Prefer: "return=representation"
+      },
+      body: JSON.stringify({
+        category_id: Number(category_id),
+        pitch_id: Number(pitch_id),
+        name: name.trim(),
+        phase: phase || "morning",
+        start_time: start_time || null
+      })
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    return res.status(response.status).json({
+      error: "Erreur Supabase",
+      details: data
+    });
+  }
+
+  return res.status(200).json(data);
+}
+    // SUPPRIMER UNE POULE
+if (req.method === "DELETE") {
+  const { id } = req.body || {};
+
+  if (!id) {
+    return res.status(400).json({
+      error: "ID de la poule obligatoire"
+    });
+  }
+
+  const response = await fetch(
+    `${supabaseUrl}/rest/v1/pools?id=eq.${Number(id)}`,
+    {
+      method: "DELETE",
+      headers: {
+        apikey: supabaseKey,
+        Authorization: `Bearer ${supabaseKey}`,
+        Prefer: "return=representation"
+      }
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    return res.status(response.status).json({
+      error: "Erreur Supabase",
+      details: data
+    });
+  }
+
+  return res.status(200).json(data);
+}
     return res.status(405).json({
       error: "Méthode non autorisée"
     });
