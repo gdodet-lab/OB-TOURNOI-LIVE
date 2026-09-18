@@ -999,6 +999,99 @@ const poolPitchSelect = document.getElementById("poolPitchSelect");
     alert("Erreur lors du retrait de l'équipe.");
   }
 }
+  async function modifierPoule(id) {
+  try {
+    const response = await fetch("/api/pools");
+    const poules = await response.json();
+
+    const poule = poules.find(
+      p => Number(p.id) === Number(id)
+    );
+
+    if (!poule) {
+      alert("Poule introuvable.");
+      return;
+    }
+
+    const nouveauNom = prompt(
+      "Nom de la poule :",
+      poule.name
+    );
+
+    if (nouveauNom === null) return;
+
+    const nouveauNomNettoye = nouveauNom.trim();
+
+    if (!nouveauNomNettoye) {
+      alert("Le nom de la poule est obligatoire.");
+      return;
+    }
+
+    const modification = await fetch("/api/pools", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id: poule.id,
+        category_id: poule.category_id,
+        pitch_id: poule.pitch_id,
+        name: nouveauNomNettoye,
+        phase: poule.phase,
+        start_time: poule.start_time
+      })
+    });
+
+    const data = await modification.json();
+
+    if (!modification.ok) {
+      console.error(data);
+      alert("Impossible de modifier la poule.");
+      return;
+    }
+
+    await chargerPoules();
+
+    alert("Poule modifiée avec succès.");
+
+  } catch (error) {
+    console.error(error);
+    alert("Erreur lors de la modification de la poule.");
+  }
+}
+  async function supprimerPoule(id) {
+  if (!confirm("Supprimer cette poule ?")) {
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/pools", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error(data);
+      alert("Impossible de supprimer la poule.");
+      return;
+    }
+
+    await chargerPoules();
+
+    alert("Poule supprimée avec succès.");
+
+  } catch (error) {
+    console.error(error);
+    alert("Erreur lors de la suppression de la poule.");
+  }
+}
   async function chargerPoules() {
 
   const zone = document.getElementById("poolsList");
@@ -1053,7 +1146,32 @@ const affectations = await responseAffectations.json();
   <span style="color: #64748b; font-size: 14px;">
     ${poule.phase === "afternoon" ? "Après-midi" : "Matin"}
   </span>
+ligne.innerHTML = `
+  <strong>📋 ${poule.name}</strong><br>
 
+  <span style="color: #64748b; font-size: 14px;">
+    ${poule.phase === "afternoon" ? "Après-midi" : "Matin"}
+  </span>
+
+  <div style="margin-top: 8px;">
+    <button
+      onclick="modifierPoule(${poule.id})"
+      style="padding: 4px 8px; margin-right: 6px;"
+    >
+      ✏️ Modifier
+    </button>
+
+    <button
+      onclick="supprimerPoule(${poule.id})"
+      style="padding: 4px 8px;"
+    >
+      🗑️ Supprimer
+    </button>
+  </div>
+
+  <div style="margin-top: 8px;">
+    ${
+      equipesDeLaPoule.length > 0
   <div style="margin-top: 8px;">
     ${
       equipesDeLaPoule.length > 0
