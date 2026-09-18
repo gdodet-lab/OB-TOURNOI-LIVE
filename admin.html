@@ -534,15 +534,23 @@ async function chargerEquipes() {
 
     const equipes = await response.json();
     if (poolTeamTeamSelect) {
+  const poolSelect = document.getElementById("poolTeamPoolSelect");
+  const selectedPoolOption = poolSelect?.options[poolSelect.selectedIndex];
+  const categoryId = selectedPoolOption?.dataset.categoryId;
+
   poolTeamTeamSelect.innerHTML =
     '<option value="">Sélectionner une équipe</option>';
 
-  equipes.forEach(equipe => {
-    const option = document.createElement("option");
-    option.value = equipe.id;
-    option.textContent = equipe.name;
-    poolTeamTeamSelect.appendChild(option);
-  });
+  equipes
+    .filter(equipe =>
+      !categoryId || String(equipe.category_id) === String(categoryId)
+    )
+    .forEach(equipe => {
+      const option = document.createElement("option");
+      option.value = equipe.id;
+      option.textContent = equipe.name;
+      poolTeamTeamSelect.appendChild(option);
+    });
 }
 
     if (equipes.length === 0) {
@@ -1015,6 +1023,7 @@ const poolPitchSelect = document.getElementById("poolPitchSelect");
     const option = document.createElement("option");
     option.value = poule.id;
     option.textContent = poule.name;
+    option.dataset.categoryId = poule.category_id;
     poolTeamPoolSelect.appendChild(option);
   });
 }
@@ -1131,6 +1140,11 @@ if (boutonEquipe) {
 
   // Activation du bouton Ajouter la poule
   // Activation du bouton Ajouter une équipe à une poule
+  const selectPouleEquipe = document.getElementById("poolTeamPoolSelect");
+
+if (selectPouleEquipe) {
+  selectPouleEquipe.addEventListener("change", chargerEquipes);
+}
 const boutonEquipePoule = document.getElementById("addPoolTeamButton");
 
 if (boutonEquipePoule) {
